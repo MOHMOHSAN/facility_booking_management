@@ -1,0 +1,48 @@
+<nav class="navbar navbar-expand-md bg-dark navbar-dark">
+  <%= link_to "Facilities Booking System", root_path, :class=>'navbar-brand' %>
+  <button class="navbar-toggler order-last order-md-0" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <% if user_signed_in? %>
+    <div class="collapse navbar-collapse order-last order-md-0" id="collapsibleNavbar">
+      <ul class="navbar-nav">
+
+        <li class="nav-item">
+          <%= link_to root_path, :class=>'activeA nav-link' do %>
+            <span>Booking</span>
+          <% end %>
+        </li>
+      
+
+        <li class="nav-item">
+            <%= link_to bookings_path ,:class=>'activeA nav-link' do %>
+              <span>My Booking</span>
+            <% end %>
+        </li>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="collapse navbar-collapse" id="navbar">
+    <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
+     
+      <% if user_signed_in? %>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <%= current_user.email%>
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <%= link_to 'Logout', destroy_user_session_path, method: :delete , :class => "dropdown-item" %>
+          </div>
+        </li>
+      <% else %>
+        <li class="nav-item">
+          <%= link_to 'Log in', new_user_session_path , :class=>'nav-link' %>
+        </li>
+      <%end%>
+     
+    </ul>
+    
+  </div>
+</nav>
