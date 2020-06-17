@@ -14,4 +14,19 @@
 
 @import "bootstrap";
 @import "bookings";
+@import "tempusdominus-bootstrap-4.css";
 @import "datatables";
+
+.bg-light{
+	background-color: #1f9994 !important;
+}
+
+.container {
+	margin-top: 50px;
+}
+
+.lbl{
+	font-size:14px;
+	color: #00c4cc;
+	font-weight: 500;
+}
