@@ -1,13 +1,17 @@
 class BookingsController < ApplicationController
+  before_action :authenticate_user!
   before_action :set_booking, only: [:show, :edit, :update, :destroy]
 
   # GET /bookings
   # GET /bookings.json
   def index
-    # @bookings = Booking.all
-    respond_to do |format|
-      format.html
-      format.json { render json: BookingsDatatable.new(view_context) }
+    if !current_user
+      redirect_to new_user_session_path
+    else
+      respond_to do |format|
+        format.html
+        format.json { render json: BookingsDatatable.new(view_context) }
+      end
     end
   end
 
