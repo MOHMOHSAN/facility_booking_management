@@ -1,0 +1,67 @@
+<div class="container">
+	<p id="notice"><%= notice %></p>
+
+
+<div class="col-md-6">
+
+<%= form_with(local: true) do |form| %>
+
+    <div class="form-group">       
+      <div class="input-group date" id="datetimepicker" data-target-input="nearest">
+        <%= form.text_field(:reservation_date,class: "form-control datetimepicker-input", data: {target:"#datetimepicker"}) %>
+        <div class="input-group-append" data-target="#datetimepicker" data-toggle="datetimepicker">
+          <div class="input-group-text"><span class="fas fa-calendar-alt"></span></div>
+        </div>
+      </div>
+	</div>
+
+
+	<div class="form-group row">
+		<div class="col-md-1"></div>
+      	<div class="col-md-4">   
+	      <div class="input-group date" id="datetimepicker2" data-target-input="nearest">
+	        <%= form.text_field(:reservation_time,class: "form-control datetimepicker-input", data: {target:"#datetimepicker2"}) %>
+	        <div class="input-group-append" data-target="#datetimepicker2" data-toggle="datetimepicker">
+	          <div class="input-group-text"><span class="far fa-clock"></span></div>
+	        </div>
+	      </div>
+	    </div>
+	    <div class="col-md-1"></div>
+	   	<div class="col-md-4">   
+	      <div class="input-group date" id="datetimepicker3" data-target-input="nearest">
+	        <%= form.text_field(:reservation_end_time,class: "form-control datetimepicker-input", data: {target:"#datetimepicker3"}) %>
+	        <div class="input-group-append" data-target="#datetimepicker3" data-toggle="datetimepicker">
+	          <div class="input-group-text"><span class="far fa-clock"></span></div>
+	        </div>
+	      </div>
+	    </div>
+	</div>
+
+
+	<div class="form-group">
+		<%= form.label :select_floor, "Select Floor(s)", class: 'lbl' %>        
+		<%= form.select :floor, @option_for_floors,{},:class => 'form-control' %>
+	</div>
+
+
+	<div class="form-group">
+		<%= form.label :select_room_type, "Select Facility Type(s)", class: 'lbl' %>     
+		<%= form.select :room_type, @room_types,{},:class => 'form-control' %>
+	</div>
+
+
+
+	<div class="form-group">
+		<%= form.label :select_capacities, "Select Capacity", class: 'lbl' %>     
+		<%= form.select :capacities, @capacities,{},:class => 'form-control' %>
+	</div>
+
+	<div class="actions">
+		<%= form.submit %>
+	</div>
+
+
+<% end %>
+
+
+</div>
