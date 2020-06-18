@@ -163,31 +163,18 @@
         
         var allow = true;
         if(mode != old_mode || (!old_date || old_date.valueOf() != date.valueOf())){
-         
-
-            if(old_date){
-                new_date = new Date(date)
-                scheduler.clearAll();
-                $.ajax({
-                    type: 'POST',
-                    url: '<%= rooms_data_path %>',
-                    dataType: 'JSON',
-                    data: {authenticity_token: $('[name="csrf-token"]')[0].content,reservation_date:moment(new_date).format("YYYY-MM-DD"),room_type:room_type,capacities:capacities},
-                      success: function (data) {
-                          processingSchedule(data);
-                      }
-
-                });  
-
-              // if(date > +old_date){
-              //   console.log("Moving Forward")
-              //   console.log(new Date(date))
-                
-              // }else if(date < old_date){
-              //   console.log("backward")
-              //   console.log(new Date(date))
-              // }
-            }
+        
+          new_date = new Date(date)
+          scheduler.clearAll();
+          $.ajax({
+              type: 'POST',
+              url: '<%= rooms_data_path %>',
+              dataType: 'JSON',
+              data: {authenticity_token: $('[name="csrf-token"]')[0].content,reservation_date:moment(new_date).format("YYYY-MM-DD"),room_type:room_type,capacities:capacities},
+                success: function (data) {
+                    processingSchedule(data);
+                }
+          });  
         
         }
      
@@ -213,7 +200,7 @@
      
 
       function processingSchedule(data){
-
+          console.log(data)
           let lvl1_rooms = []
           let lvl2_rooms = []
           let lvl3_rooms = []
@@ -223,9 +210,9 @@
             let obj = data[i]
             floor = obj.floor
             room_id = obj.id
-            if(floor == "Level 1"){
+            if(floor == "1"){
               lvl1_rooms.push({key:room_id,label:obj.room_name+"("+obj.room_type+")",capacities:obj.capacities})
-            }else if(floor == "Level 2"){
+            }else if(floor == "2"){
               lvl2_rooms.push({key:room_id,label:obj.room_name+"("+obj.room_type+")",capacities:obj.capacities})
             }else{
               lvl3_rooms.push({key:room_id,label:obj.room_name+"("+obj.room_type+")",capacities:obj.capacities})
@@ -242,8 +229,10 @@
 
           }
 
+
           for(let j =0;j<room_lists_with_floor.length;j++){
             let obj = room_lists_with_floor[j]
+            console.log(obj.key)
             if(obj.key == -1){
               obj.children = lvl1_rooms
             }else if(obj.key == -2){
@@ -253,8 +242,8 @@
             }
           }
 
-          console.log(booking_lists)
-
+          // console.log(booking_lists)
+          console.log(room_lists_with_floor)
       
 
           scheduler.parse(JSON.stringify({

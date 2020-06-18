@@ -9,23 +9,6 @@ class RoomsController < ApplicationController
 	def index
 	end
 
-	def save_booking
-		reservation_time = params["reservation_time"]
-		reservation_end_time = params["reservation_end_time"]
-		booking_reason = params["booking_reason"]
-		room_id = params["room_id"]
-		user_id = params["user_id"]
-		@booking = Booking.new
-		  # id = params[“id”]
-		  # start_date = params[“start_date”]
-		  # end_date = params[“end_date”]
-		  # text = params[“text”]
-
-		  # case mode
-		  # when “inserted”
-		  #   event = Event.create :start_date => start_date, :end_date => end_date,     :text => text
-		  #   tid = event.id
-	end
 
 	def data
 		reservation_date = params["reservation_date"]
@@ -55,7 +38,7 @@ class RoomsController < ApplicationController
 			wheres << "%#{room_type}%"
 		end
 
-		if !capacities.empty? and capacities.to_i.between?(5,10)
+		if !capacities.empty? and capacities!="All" and capacities.to_i.between?(5,10)
 			conditions << " AND " unless conditions.length == 0
 			conditions << "capacities = ?"
 			wheres << capacities
@@ -67,6 +50,7 @@ class RoomsController < ApplicationController
 		else
 			@rooms = Room.where(wheres)
 		end
+		# byebug
 	
 
 	   	render :json => @rooms.map {|room| {
