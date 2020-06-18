@@ -7,7 +7,14 @@ Rails.application.config.assets.version = '1.0'
 # Rails.application.config.assets.paths << Emoji.images_path
 # Add Yarn node_modules folder to the asset load path.
 Rails.application.config.assets.paths << Rails.root.join('node_modules')
-
+Rails.application.config.assets.precompile += %w( dhtmlxscheduler.css )
+Rails.application.config.assets.precompile += %w( dhtmlxscheduler.js )
+Rails.application.config.assets.precompile += %w( ext/dhtmlxscheduler_timeline.js )
+Rails.application.config.assets.precompile += %w( ext/dhtmlxscheduler_treetimeline.js )
+Rails.application.config.assets.precompile += %w( ext/dhtmlxscheduler_collision.js )
+Rails.application.config.assets.precompile += %w( ext/dhtmlxscheduler_limit.js )
+Rails.application.config.assets.precompile += %w( ext/dhtmlxscheduler_tooltip.js )
+Rails.application.config.assets.precompile += %w( ext/dhtmlxscheduler_readonly.js )
 # Precompile additional assets.
 # application.js, application.css, and all non-JS/CSS in the app/assets
 # folder are already added.

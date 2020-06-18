@@ -20,7 +20,7 @@ class BookingsDatatable < ApplicationDatatable
           links = []
           # links << link_to('Show', booking)
           # links << link_to('Edit', edit_booking_path(booking))
-          links << link_to('Cancel', booking, method: :delete, data: { confirm: 'Are you sure?' })
+          links << link_to('Cancel Booking', booking, method: :delete, data: { confirm: 'Are you sure you want to cancel booking?' })
           column << links.join(' | ')
         end
       end

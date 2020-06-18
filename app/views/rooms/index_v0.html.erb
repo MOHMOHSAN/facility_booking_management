@@ -1,0 +1,180 @@
+<style type="text/css" >
+	html, body{
+		margin:0px;
+		padding:0px;
+		height:100%;
+		overflow:hidden;
+	}	
+	.one_line{
+		white-space:nowrap;
+		overflow:hidden;
+		padding-top:5px; padding-left:5px;
+		text-align:left !important;
+	}
+
+	.scheduler_weekends {
+	    background-color: #FFFF00;
+	    opacity: 0.5;
+	}
+</style>
+
+<script type="text/javascript" charset="utf-8">
+	window.addEventListener("DOMContentLoaded", function(){
+		const queryString = window.location.search;
+		const urlParams = new URLSearchParams(queryString);
+		// const floor =  urlParams.get('floor');
+
+		let reservation_date = urlParams.get('reservation_date')
+		if (reservation_date == null){
+			reservation_date = new Date();
+		}
+		let room_type =  urlParams.get('room_type');
+		let capacities = urlParams.get('capacities');
+		console.log(reservation_date)
+		console.log(room_type)
+		console.log(capacities)
+
+
+		scheduler.locale.labels.timeline_tab = "Timeline";
+		scheduler.locale.labels.section_custom="Section";
+		scheduler.config.details_on_create=true;
+		scheduler.config.details_on_dblclick=true;
+		
+		
+		//===============
+		//Configuration
+		//===============	
+		var elements =  [{key:-1, label:"First Floor",open:true, children:[]},
+				         {key:-2, label:"Second Floor",open:true, children:[]},
+				         {key:-3, label:"Third Floor",open:true, children:[]},
+				        ];
+
+		scheduler.createTimelineView({
+			section_autoheight: false,
+			name:	"timeline",
+			x_unit:	"minute",
+			x_date:	"%H:%i",
+			x_step:	30,
+			x_size: 24,
+			x_start: 16,
+			x_length:	48,
+			y_unit: elements,
+			y_property:	"section_id",
+			render: "tree",
+			folder_dy:30,
+			dy:20
+		});
+
+
+	  	$.ajax({
+            type: 'POST',
+            url: '<%= rooms_data_path %>',
+            dataType: 'JSON',
+            data: {authenticity_token: $('[name="csrf-token"]')[0].content,reservation_date:moment(reservation_date).format("YYYY-MM-DD"),room_type:room_type,capacities:capacities},
+            success: function (data) {
+                processingSchedule(data);
+            }
+
+        });		
+
+
+        function processingSchedule(data){
+        	let lvl1_rooms = []
+        	let lvl2_rooms = []
+        	let lvl3_rooms = []
+        	for(let i=0;i < data.length;i++){
+        		let obj = data[i]
+        		if(obj.floor == "Level 1"){
+        			lvl1_rooms.push({key:obj.id,label:obj.room_name+"("+obj.room_type+")"})
+        		}else if(obj.floor == "Level 2"){
+        			lvl2_rooms.push({key:obj.id,label:obj.room_name+"("+obj.room_type+")"})
+        		}else{
+        			lvl3_rooms.push({key:obj.id,label:obj.room_name+"("+obj.room_type+")"})
+        		}
+
+        	}
+
+        	for(let j =0;j<elements.length;j++){
+        		let obj = elements[j]
+        		if(obj.key == -1){
+        			obj.children = lvl1_rooms
+        		}else if(obj.key == -2){
+        			obj.children = lvl2_rooms
+        		}else{
+        			obj.children = lvl3_rooms
+        		}
+        	}
+
+        	console.log(elements)
+
+  //       var elements = [ // original hierarhical array to display
+		
+		// 	{key:1, label:"Level 1", open:true, children: [
+		// 		{key:80, label:"Kate Moss"},
+		// 		{key:90, label:"Dian Fossey"}
+		// 	]},
+		// 	{key:2, label:"Level 2", open:true, children: [
+		// 		{key:100, label:"Kate Moss"},
+		// 		{key:110, label:"Dian Fossey"}
+		// 	]},
+		// 	{key:3, label:"Level 3", open:true, children: [
+		// 		{key:120, label:"Kate Moss"},
+		// 		{key:130, label:"Dian Fossey"}
+		// 	]}
+		// ];
+			console.log(data);
+	
+		
+
+
+
+		//===============
+		//Data loading
+		//===============
+		scheduler.config.lightbox.sections=[	
+			{name:"description", height:50, map_to:"text", type:"textarea" , focus:true},
+			{name:"custom", height:30, type:"timeline", options:null , map_to:"section_id" }, //type should be the same as name of the tab
+			{name:"time", height:72, type:"time", map_to:"auto"}
+		];
+
+        }
+		
+		
+
+	
+		
+		scheduler.init('scheduler_here',reservation_date,"timeline");
+		// scheduler.parse([
+		// 	{ start_date: "2017-06-30 09:00", end_date: "2017-06-30 12:00", text:"Task A-12458", section_id:20},
+		// 	{ start_date: "2017-06-30 10:00", end_date: "2017-06-30 16:00", text:"Task A-89411", section_id:20},
+		// 	{ start_date: "2017-06-30 10:00", end_date: "2017-06-30 14:00", text:"Task A-64168", section_id:20},
+		// 	{ start_date: "2017-06-30 16:00", end_date: "2017-06-30 17:00", text:"Task A-46598", section_id:20},
+			
+		// 	{ start_date: "2017-06-30 12:00", end_date: "2017-06-30 20:00", text:"Task B-48865", section_id:40},
+		// 	{ start_date: "2017-06-30 14:00", end_date: "2017-06-30 16:00", text:"Task B-44864", section_id:40},
+		// 	{ start_date: "2017-06-30 16:30", end_date: "2017-06-30 18:00", text:"Task B-46558", section_id:40},
+		// 	{ start_date: "2017-06-30 18:30", end_date: "2017-06-30 20:00", text:"Task B-45564", section_id:40},
+			
+		// 	{ start_date: "2017-06-30 08:00", end_date: "2017-06-30 12:00", text:"Task C-32421", section_id:50},
+		// 	{ start_date: "2017-06-30 14:30", end_date: "2017-06-30 16:45", text:"Task C-14244", section_id:50},
+			
+		// 	{ start_date: "2017-06-30 09:20", end_date: "2017-06-30 12:20", text:"Task D-52688", section_id:60},
+		// 	{ start_date: "2017-06-30 11:40", end_date: "2017-06-30 16:30", text:"Task D-46588", section_id:60},
+		// 	{ start_date: "2017-06-30 12:00", end_date: "2017-06-30 18:00", text:"Task D-12458", section_id:60}
+		// ]);
+	});
+</script>
+
+
+
+<div id="scheduler_here" class="dhx_cal_container" style='width:100%; height:100%;'>
+		<div class="dhx_cal_navline">
+			<div class="dhx_cal_next_button">&nbsp;</div>
+			<div class="dhx_cal_today_button"></div>
+			<div class="dhx_cal_date"></div>
+		</div>
+		<div class="dhx_cal_header">
+		</div>
+		<div class="dhx_cal_data">
+		</div>		
+</div>

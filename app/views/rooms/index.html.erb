@@ -1,0 +1,340 @@
+<style type="text/css">
+  html, body{
+    margin:0;
+    padding:0;
+    height:100%;
+    overflow:hidden;
+  }
+
+  .timeline_item_cell{
+    font-size: 14px;
+    text-align: center;
+    color: #1F9994;
+  }
+
+  .event_1 {
+      background-color: #FFB74D !important;
+  }
+
+  .event_2 {
+      background-color: #9CCC65 !important;
+  }
+
+</style>
+<script type="text/javascript">
+  window.addEventListener("DOMContentLoaded", function(){
+
+   
+
+    
+      window.showRooms = function showRooms(capacities) {
+        var allRooms = scheduler.serverList("rooms");
+      
+        var visibleRooms ;
+        if (capacities == 'all') {
+          visibleRooms = allRooms.slice();
+        }else{
+            let combinedRoomArray = []
+            combinedRoomArray.push(...allRooms[0].children, ...allRooms[1].children, ...allRooms[2].children)
+              visibleRooms = combinedRoomArray
+                .filter(function(room){
+                   return room.capacities == capacities;
+              });
+          }
+
+        scheduler.updateCollection("visibleRooms", visibleRooms);
+      };
+
+
+      const queryString = window.location.search;
+      const urlParams = new URLSearchParams(queryString);
+      // const floor =  urlParams.get('floor');
+
+      let reservation_date = urlParams.get('reservation_date')
+      if (reservation_date == null){
+        reservation_date = new Date();
+      }
+      let room_type =  urlParams.get('room_type');
+      let capacities = urlParams.get('capacities');
+
+
+      scheduler.locale.labels.timeline_tab = "Timeline";
+      scheduler.locale.labels.section_custom="Section";
+      scheduler.config.details_on_create=true;
+      scheduler.config.details_on_dblclick=true;
+
+      //===============
+      //Configuration
+      //===============
+
+      scheduler.serverList("roomCapacities");
+      scheduler.serverList("rooms");
+
+      scheduler.createTimelineView({
+        name: "timeline",
+        x_unit: "minute",
+        x_date: "%H:%i",
+        x_step: 30,
+        x_size: 21,
+        x_start: 18,
+        x_length: 48,
+        event_dy: "full",
+        y_unit: scheduler.serverList("visibleRooms"),
+        y_property: "room",
+        render:"tree"
+      });
+
+
+    
+
+      //===============
+      //Data loading
+      //===============
+      scheduler.config.lightbox.sections=[
+        {name:"Booking Purpose", height:70, map_to:"text", type:"textarea" , focus:true},
+        {name:"time", height:72, type:"time", map_to:"auto"},
+        {name:"custom", height:23, type:"select", options:  scheduler.serverList("room_ids"), map_to:"room" },
+      ];
+
+      scheduler.attachEvent('onEventCreated', function (event_id) {
+        console.log(event_id)
+        var ev = scheduler.getEvent(event_id);
+        ev.status = 2;
+        ev.text = 'New Booking';
+      });
+
+
+      scheduler.attachEvent("onParse", function(){
+        showRooms("all");
+        
+        var roomSelect = document.querySelector("#room_filter");
+        var capacities = scheduler.serverList("roomCapacities");
+        var capacityElements = ["<option value='all'>All</option>"];
+        capacities.forEach(function(capacity){
+           capacityElements.push("<option value='"+capacity.key+"'>" + capacity.label +"</option>");
+        });
+        roomSelect.innerHTML = capacityElements.join("")
+      });
+
+      scheduler.locale.labels.timeline_scale_header = "<div class='timeline_item_cell'>Room Name</div>";
+
+      //adding css to each timeline
+      scheduler.attachEvent("onTemplatesReady", function(){
+
+        scheduler.templates.event_class = function (start, end, event) {
+            return "event_" + (event.status || "");
+        };
+
+        // Tool-tips
+        var eventDateFormat = scheduler.date.date_to_str("%H:%i");
+        scheduler.templates.tooltip_text = function (start, end, event) {
+          scheduler.getEvent(event.id).readonly = true;
+          var html = [];
+          html.push("Booking: <b>" + event.text + "</b>");
+          html.push("Check-in: <b>" + eventDateFormat(start) + "</b>");
+          html.push("Check-out: <b>" + eventDateFormat(end) + "</b>");
+          html.push("Use Type :<b>"+event.reason+"</b>");
+          return html.join("<br>")
+        };
+      });
+
+      function block_readonly(id){
+        if (!id) return true;
+        return !this.getEvent(id).readonly;
+      }
+      scheduler.attachEvent("onBeforeDrag",block_readonly)
+      scheduler.attachEvent("onClick",block_readonly)
+    
+
+      scheduler.config.limit_time_select = true;
+      scheduler.config.first_hour = 9;
+      scheduler.config.last_hour = 18;
+      scheduler.config.auto_end_date = true;
+      scheduler.config.event_duration = 120;
+      scheduler.config.time_step = 15;
+      scheduler.config.details_on_create = true;      
+
+      scheduler.init('scheduler_here',reservation_date,"timeline"); 
+
+
+      scheduler.init('scheduler_here',reservation_date,"timeline"); 
+
+      scheduler.attachEvent("onBeforeViewChange", function(old_mode,old_date,mode,date){
+        
+        var allow = true;
+        if(mode != old_mode || (!old_date || old_date.valueOf() != date.valueOf())){
+         
+
+            if(old_date){
+                new_date = new Date(date)
+                scheduler.clearAll();
+                $.ajax({
+                    type: 'POST',
+                    url: '<%= rooms_data_path %>',
+                    dataType: 'JSON',
+                    data: {authenticity_token: $('[name="csrf-token"]')[0].content,reservation_date:moment(new_date).format("YYYY-MM-DD"),room_type:room_type,capacities:capacities},
+                      success: function (data) {
+                          processingSchedule(data);
+                      }
+
+                });  
+
+              // if(date > +old_date){
+              //   console.log("Moving Forward")
+              //   console.log(new Date(date))
+                
+              // }else if(date < old_date){
+              //   console.log("backward")
+              //   console.log(new Date(date))
+              // }
+            }
+        
+        }
+     
+        return allow;
+      });
+
+
+      $.ajax({
+        type: 'POST',
+        url: '<%= rooms_data_path %>',
+        dataType: 'JSON',
+        data: {authenticity_token: $('[name="csrf-token"]')[0].content,reservation_date:moment(reservation_date).format("YYYY-MM-DD"),room_type:room_type,capacities:capacities},
+          success: function (data) {
+              processingSchedule(data);
+          }
+
+      });   
+
+      var room_lists_with_floor = [{key:-1, label:"First Floor",open:true, children:[]},
+               {key:-2, label:"Second Floor",open:true, children:[]},
+               {key:-3, label:"Third Floor",open:true, children:[]}];
+
+     
+
+      function processingSchedule(data){
+
+          let lvl1_rooms = []
+          let lvl2_rooms = []
+          let lvl3_rooms = []
+          let booking_lists = []
+          let room_lists = []
+          for(let i=0;i < data.length;i++){
+            let obj = data[i]
+            floor = obj.floor
+            room_id = obj.id
+            if(floor == "Level 1"){
+              lvl1_rooms.push({key:room_id,label:obj.room_name+"("+obj.room_type+")",capacities:obj.capacities})
+            }else if(floor == "Level 2"){
+              lvl2_rooms.push({key:room_id,label:obj.room_name+"("+obj.room_type+")",capacities:obj.capacities})
+            }else{
+              lvl3_rooms.push({key:room_id,label:obj.room_name+"("+obj.room_type+")",capacities:obj.capacities})
+            }
+            room_lists.push({key:room_id,label:obj.room_name})
+            bookings = obj.bookings
+
+            if(bookings.length > 0){
+              for(let j=0;j<bookings.length;j++){
+                let bookingObj = bookings[j]
+                booking_lists.push({"room":room_id,"reason":bookingObj.booking_reason,"start_date":bookingObj.reservation_time,"end_date":bookingObj.reservation_end_time,"text":"Occupied","id":bookingObj.id,"status":"1"})
+              }
+            }
+
+          }
+
+          for(let j =0;j<room_lists_with_floor.length;j++){
+            let obj = room_lists_with_floor[j]
+            if(obj.key == -1){
+              obj.children = lvl1_rooms
+            }else if(obj.key == -2){
+              obj.children = lvl2_rooms
+            }else{
+              obj.children = lvl3_rooms
+            }
+          }
+
+          console.log(booking_lists)
+
+      
+
+          scheduler.parse(JSON.stringify({
+            "data":booking_lists,
+            "collections":{
+              "roomCapacities":[
+                {"value":"5","label":"5 pax"},
+                {"value":"6","label":"6 pax"},
+                {"value":"7","label":"7 pax"},
+                {"value":"8","label":"8 pax"},
+                {"value":"9","label":"9 pax"},
+                {"value":"10","label":"10 pax"},
+              ],
+              "rooms": room_lists_with_floor,
+              "room_ids":room_lists
+            }
+          }),"json");
+      }
+
+
+      if(!scheduler._onEventSave){
+        scheduler.attachEvent('onEventSave', function(eventId, event) {
+          if(Number.isInteger(eventId)){
+            today = new Date();
+            startingDay = new Date(event["start_date"]);
+            endingDay = new Date(event["end_date"]);
+          
+   
+            if(startingDay < today){
+              dhtmlx.alert("Can't book for past date");
+              return false;
+            }
+
+            let formatFunc = scheduler.date.date_to_str("%Y-%m-%d %H:%i:%s");
+            let date1 = formatFunc(startingDay); // -> "29/06/2013"
+            let date2 = formatFunc(endingDay);
+            $.ajax({
+                url: '/bookings.json',
+                dataType: 'JSON',
+                type: "POST",
+                data: {authenticity_token: $('[name="csrf-token"]')[0].content,
+                  booking: { 
+                    reservation_date:date1,
+                    reservation_time:date1,
+                    reservation_end_time:date2,
+                    booking_reason:event["text"],
+                    room_id:event["room"],
+                    user_id:"<%=current_user.id%>"
+                  } 
+                },
+                success: function (data) {
+                    if(data === -1){
+                        dhtmlx.alert("Sorry,Something went wrong");
+                        return false;
+                    }else{
+                        dhtmlx.alert("Created successfully");
+                        return true;
+                    }
+                }
+            });
+
+          }
+
+          return true;
+        });
+      }
+
+   
+  });
+</script>
+<div id="scheduler_here" class="dhx_cal_container" style='width:100%; height:100%;'>
+    <div class="dhx_cal_navline">
+      <div class="dhx_cal_prev_button">&nbsp;</div>
+      <div class="dhx_cal_next_button">&nbsp;</div>
+      <div class="dhx_cal_today_button"></div>
+      <div class="dhx_cal_date"></div>
+      <select id="room_filter" onchange='showRooms(this.value)'></select>
+    </div>
+    <div class="dhx_cal_header">
+    </div>
+    <div class="dhx_cal_data">
+    </div>    
+</div>
