@@ -50,13 +50,14 @@ class BookingsDatatable < ApplicationDatatable
  
       # will_paginate
       if sort_column == "facility"
-        bookings = Booking.where(user_id: @current_user)
+
+        bookings = Booking.where("user_id=? and reservation_end_time > ?",@current_user,DateTime.now.to_formatted_s(:db))
         bookings = bookings.joins(:room).order("rooms.room_name #{sort_direction}")
       elsif sort_column == "room_type"
-        bookings = Booking.all 
+        bookings =  Booking.where("user_id=? and reservation_end_time > ?",@current_user,DateTime.now.to_formatted_s(:db))
         bookings = bookings.joins(:room).order("rooms.room_type #{sort_direction}")
       else
-        bookings = Booking.where(user_id: @current_user).order("#{sort_column} #{sort_direction}")
+        bookings = Booking.where("user_id=? and reservation_end_time > ?",@current_user,DateTime.now.to_formatted_s(:db)).order("#{sort_column} #{sort_direction}")
       end
       bookings = bookings.page(page).per(per_page)
 
