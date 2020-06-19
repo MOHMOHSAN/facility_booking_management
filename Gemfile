@@ -23,7 +23,7 @@ gem 'rails-assets-datatables', source: 'https://rails-assets.org'
 gem 'kaminari'
 
 gem 'jquery-rails'
-gem 'bootstrap'
+gem "bootstrap", ">= 4.3.1"
 
 gem 'momentjs-rails'
 gem 'bootstrap4-datetime-picker-rails'
