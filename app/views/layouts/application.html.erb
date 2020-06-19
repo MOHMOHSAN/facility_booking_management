@@ -10,34 +10,42 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0-2/js/all.min.js"></script>
     <%= stylesheet_link_tag 'dhtmlxscheduler',media:'all','data-turbolinks-track'=>true %>
     <%= javascript_include_tag 'dhtmlxscheduler', 'data-turbolinks-track' => true %>
+    <%= javascript_include_tag 'ext/dhtmlxscheduler_limit', 'data-turbolinks-track' => true %>
     <%= javascript_include_tag 'ext/dhtmlxscheduler_timeline', 'data-turbolinks-track' => true %>
     <%= javascript_include_tag 'ext/dhtmlxscheduler_treetimeline', 'data-turbolinks-track' => true %>
     <%= javascript_include_tag 'ext/dhtmlxscheduler_collision', 'data-turbolinks-track' => true %>
-    <%= javascript_include_tag 'ext/dhtmlxscheduler_limit', 'data-turbolinks-track' => true %>
     <%= javascript_include_tag 'ext/dhtmlxscheduler_tooltip', 'data-turbolinks-track' => true %>
     <%= javascript_include_tag 'ext/dhtmlxscheduler_readonly', 'data-turbolinks-track' => true %>
+    <%= javascript_include_tag 'ext/dhtmlxscheduler_units', 'data-turbolinks-track' => true %>
 
     
   </head>
   <body>
-
     <%= render 'layouts/header' %>
+
+    <%= flash_messages %>
+
+    
     <%= yield %>
   </body>
 </html>
 
 <script type="text/javascript">
   (function() {
+    window.setTimeout(function() {
+        $(".alert").fadeTo(500, 0).slideUp(500, function(){
+            $(this).remove(); 
+        });
+    }, 4000);
+
     var path = window.location.pathname;
       path = path.replace(/\/$/, "");
       path = decodeURIComponent(path);
-
-      $(".activeA").each(function () {
-          var href = $(this).attr('href');
-          if (path.substring(0, href.length) === href) {
-              $(this).closest('li').addClass('active');
-          }
-      });
+      console.log(path)
+      if(path == "/bookings")
+        $(".activeB").addClass('active')
+      else
+        $(".activeA").addClass('active')
 
   })();
 </script>

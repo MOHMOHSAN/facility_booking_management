@@ -12,6 +12,7 @@ class RoomsController < ApplicationController
 
 	def data
 		reservation_date = params["reservation_date"]
+
 		room_type = params["room_type"]
 		capacities = params["capacities"]
 		@bookings = Booking.where("Date(reservation_date) = ? and status= ?",reservation_date,"Approve")
@@ -50,7 +51,7 @@ class RoomsController < ApplicationController
 		else
 			@rooms = Room.where(wheres)
 		end
-		# byebug
+
 	
 
 	   	render :json => @rooms.map {|room| {

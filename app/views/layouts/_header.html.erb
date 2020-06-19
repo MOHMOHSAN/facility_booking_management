@@ -8,16 +8,16 @@
     <div class="collapse navbar-collapse order-last order-md-0" id="collapsibleNavbar">
       <ul class="navbar-nav">
 
-        <li class="nav-item">
-          <%= link_to root_path, :class=>'activeA nav-link' do %>
+        <li class="nav-item activeA">
+          <%= link_to root_path, :class=>'nav-link' do %>
             <span>Booking</span>
           <% end %>
         </li>
       
 
-        <li class="nav-item">
-            <%= link_to bookings_path ,:class=>'activeA nav-link' do %>
-              <span>My Booking</span>
+        <li class="nav-item activeB">
+            <%= link_to bookings_path ,:class=>'nav-link' do %>
+              <span>My Bookings</span>
             <% end %>
         </li>
       </ul>

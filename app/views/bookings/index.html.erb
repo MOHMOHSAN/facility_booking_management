@@ -1,7 +1,6 @@
 <div class="container table-container">
-	<p id="notice"><%= notice %></p>
 
-	<h4>My Bookings</h4>
+	<h5 class="sub_heading">My Active Bookings</h5>
 
 	<%= content_tag :table, role: :datatable, data: {url: bookings_path(current_user: current_user, format: :json)} do %>
 	  <thead>
@@ -20,5 +19,5 @@
 	  </tbody>
 	<% end %>
 
-	<%= link_to 'New Booking', new_booking_path %>
+	<%= link_to 'New Booking', root_path %>
 </div>
