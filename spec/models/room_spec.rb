@@ -28,7 +28,7 @@ RSpec.describe Room, type: :model do
 	end
 
 	it "is invalid with a duplicate room name" do
-		subject.room_name = "Anything"
+		subject.room_name = "New Name"
 		subject.valid?
 		expect(room.errors[:room_name]).to include("has already been taken")
 	end
