@@ -6,21 +6,21 @@ application up and running.
 Steps To Set Up Localhost
 
 * Configuration
-- Bundle install
+	- Bundle install
 
 * Database creation
-- rails db:create
+	- rails db:create
 
 * Database initialization
-- rake db:migrate db:test:prepare
-- rake db:seed
+	- rake db:migrate db:test:prepare
+	- rake db:seed
 
 * How to run the test suite
-- rspec ./spec/models/room_spec.rb
-- rspec ./spec/models/booking_spec.rb
+	- rspec ./spec/models/room_spec.rb
+	- rspec ./spec/models/booking_spec.rb
 
 * Start Server
-- rails s
+	- rails s
 
 
 
